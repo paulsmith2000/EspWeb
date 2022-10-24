@@ -1,0 +1,58 @@
+/* made by Kusnh13
+For refrence watch YouTube video:-https://youtu.be/Hgq2KX5w-_o   */
+
+#include <WiFi.h>
+#include <ESPAsyncWebServer.h>
+
+const char *ssid = "ESP32-1";
+const char *password = "password";
+
+IPAddress local_IP(192,168,1,100);
+IPAddress gateway(192,168,1,10); 
+IPAddress subnet(255,255,255,0); 
+
+AsyncWebServer aserver(80);
+
+
+void doHello(AsyncWebServerRequest *request) {
+  Serial.print("HELLO command received from ");
+  Serial.println(request->client()->remoteIP().toString());
+  request->send(200, "text/plain", "Hello, damn World");
+}
+
+void setup()
+{
+  Serial.begin(9600);
+  while (!Serial.availableForWrite()) {
+    delay(50);
+  }
+  
+  Serial.println("Starting setup()");
+
+  // WiFi.disconnect();
+  WiFi.mode(WIFI_AP);
+
+
+  Serial.println(WiFi.softAPConfig(local_IP, gateway, subnet) ? "Ready" : "Failed!"); 
+  Serial.println("Setting soft-AP ... ");
+  boolean result = WiFi.softAP(ssid, password);
+
+  if(result){
+    Serial.println("Ready");
+  } else {
+    Serial.println("Failed!");
+  }
+ aserver.on("/hello", HTTP_GET, [](AsyncWebServerRequest *request){
+    doHello(request);
+  });
+ 
+ 
+  aserver.begin();
+
+}
+
+void loop()
+{
+
+
+}
